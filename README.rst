@@ -1,10 +1,14 @@
 
-PyDeb: Debian Package and Repository Library
+Debutils: Debian Package and Repository Library
 ============================================
+
+.. image:: https://badge.fury.io/py/Debutils.png
+    :target: http://badge.fury.io/py/Debutils
+    :alt: Latest version
 
 Homepage: None yet.
 
-`PyDeb` is a Python (2 and 3) library for interacting with Debian packages and repositories.
+`Debutils` is a Python (2 and 3) library for interacting with Debian packages and repositories.
 
 Features
 --------
