@@ -6,6 +6,10 @@ Debutils: Debian Package and Repository Library
     :target: http://badge.fury.io/py/Debutils
     :alt: Latest version
 
+.. image:: https://travis-ci.org/Commod0re/debutils.png?branch=master
+    :target: https://travis-ci.org/Commod0re/debutils
+    :alt: Travis-CI
+
 Homepage: None yet.
 
 `Debutils` is a Python (2 and 3) library for interacting with Debian packages and repositories.
