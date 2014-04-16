@@ -11,9 +11,73 @@ class ArchiveError(Exception):
     pass
 
 
-class ArFile:
-    """ class ArFile
+class ArMembers(collections.UserDict):
+    """
+    Simple data storage class with nice dot notation access for members.
+    """
+    # struct format for struct.unpack
+    ar_struct = "16s"   # char ar_name[16]
+    ar_struct += "12s"  # char ar_date[12]
+    ar_struct += "6s"   # char ar_uid[6]
+    ar_struct += "6s"   # char ar_gid[6]
+    ar_struct += "8s"   # char ar_mode[8]
+    ar_struct += "10s"  # char ar_size[10]
+    ar_struct += "2s"   # char ar_fmag[2]
 
+    def __init__(self):
+        super(ArMembers, self).__init__()
+        self.order = []
+
+    def unpack_into(self, packed_bytes):
+        """
+        :param packed_bytes: bytearray of struct ar_hdr to unpack
+        """
+        unpacked = struct.unpack(self.ar_struct, packed_bytes)
+        member = {
+            "name": unpacked[0].decode('utf-8').strip(), # ascii
+            "date": int(unpacked[1]),    # decimal
+            "uid": int(unpacked[2]),     # decimal
+            "gid": int(unpacked[3]),     # decimal
+            "mode": int(unpacked[4], 8), # octal
+            "size": int(unpacked[5]),    # decimal
+            "fmag": unpacked[6],         # ascii
+            "data": None,                # bytes
+        }
+        self.order.append(member["name"])
+        self.data[member["name"]] = member
+
+    def last(self):
+        """
+        :return: the name of the most recently added Member item
+        :raises KeyError: if no members yet exist
+        """
+        if len(self.order) == 0:
+            raise KeyError("No keys exist")
+
+        return self.order[-1]
+
+    def add_bytes(self, name=None, contents=None):
+        """
+        :param str name: Member name to add bytes to
+        :param bytearray contents: Contents of file to add to this member
+        :raises KeyError:
+            if there are no entries stored yet
+            if `name` is not None and the key `name` does not yet exist
+        """
+        if len(self.data) == 0:
+            raise KeyError("No keys exist")
+
+        if name is not None and name not in self.order:
+            raise KeyError("Key {key} does not exist".format(key=name))
+
+        if name is None:
+            name = self.last()
+
+        self.data[name]["data"] = contents
+
+
+class ArFile:
+    """
     Read GNU ar archives.
 
     Ar format
@@ -64,87 +128,25 @@ class ArFile:
 
     """
 
-    class ArMembers(collections.UserDict):
-        """ ArMembers
-
-        Simple data storage class with nice dot notation access for members.
-        """
-        # struct format for struct.unpack
-        ar_struct = "16s"   # char ar_name[16]
-        ar_struct += "12s"  # char ar_date[12]
-        ar_struct += "6s"   # char ar_uid[6]
-        ar_struct += "6s"   # char ar_gid[6]
-        ar_struct += "8s"   # char ar_mode[8]
-        ar_struct += "10s"  # char ar_size[10]
-        ar_struct += "2s"   # char ar_fmag[2]
-
-        def __init__(self):
-            super(ArFile.ArMembers, self).__init__()
-            self.order = []
-
-        def unpack_into(self, packed_bytes):
-            """
-            :param packed_bytes: bytearray of struct ar_hdr to unpack
-            """
-            unpacked = struct.unpack(self.ar_struct, packed_bytes)
-            member = {
-                "name": unpacked[0],          # ascii
-                "date": int(unpacked[1]),     # decimal
-                "uid": int(unpacked[2]),      # decimal
-                "gid": int(unpacked[3]),      # decimal
-                "mode": int(unpacked[4], 8),  # octal
-                "size": int(unpacked[5]),     # decimal
-                "fmag": unpacked[6],          # ascii
-                "data": None,                 # bytes
-            }
-            self.order += member["name"]
-            self.data[member["name"]] = member
-
-        def last(self):
-            """
-            :return: the name of the most recently added Member item
-            :raises KeyError: if no members yet exist
-            """
-            if len(self.order) == 0:
-                raise KeyError("No keys exist")
-
-            return self.order[-1]
-
-        def add_bytes(self, name=None, contents=None):
-            """
-            :param str name: Member name to add bytes to
-            :param bytearray contents: Contents of file to add to this member
-            :raises KeyError:
-                if there are no entries stored yet
-                if `name` is not None and the key `name` does not yet exist
-            """
-            if len(self.data) == 0:
-                raise KeyError("No keys exist")
-
-            if name is not None and name not in self.order:
-                raise KeyError("Key {key} does not exist".format(key=name))
-
-            if name is None:
-                name = self.last()
-
-            self.data[name]["data"] = contents
-
     ar_magic = bytearray([ord('!'), ord('<'), ord('a'), ord('r'), ord('c'), ord('h'), ord('>'), 0x0A])
     ar_fmagic = bytearray([0x60, 0x0A])
     ar_fpad = bytearray([0x0A])
 
     def __init__(self, arfile):
         """
-        :param arfile: file path or byte array of contents
+        :param arfile: file path, file handle, or byte array of contents
         """
 
         # add instance data members
-        self.files = ArFile.ArMembers()
+        self.files = ArMembers()
 
         if type(arfile) is str:
             # file path; open the file and store the contents in self.bytes
             with open(arfile, 'rb') as ar:
                 self.bytes = ar.read()
+
+        if hasattr(arfile, "read"):
+            self.bytes = arfile.read()
 
         if type(arfile) is bytearray:
             # file contents; just store it in self.bytes
@@ -158,7 +160,7 @@ class ArFile:
             raise ArchiveError("Not an AR archive")
 
         # now loop through and populate self.files
-        pos = 0
+        pos = 8
 
         while pos < len(self.bytes):
             self.files.unpack_into(self.bytes[pos:(pos + 60)])
@@ -181,3 +183,4 @@ class ArFile:
     def __iter__(self):
         for f in self.files:
             yield f
+
