@@ -1,6 +1,6 @@
 
 Debutils: Debian Package and Repository Library
-============================================
+===============================================
 
 .. image:: https://badge.fury.io/py/Debutils.png
     :target: http://badge.fury.io/py/Debutils
@@ -14,10 +14,28 @@ Homepage: None yet.
 
 `Debutils` is a Python (2 and 3) library for interacting with Debian packages and repositories.
 
+
+
 Features
 --------
 
-None yet!
+Implemented
+^^^^^^^^^^^
+
+Planned
+^^^^^^^
+
+ - Repository actions
+    - Traverse a well-formed repository via a Pythonic interface
+    -
+ - Package actions
+    - Pythonic access to Debian package elements
+        - Control files
+        - List of contents
+ - Linting
+    - Python reimplementation of Lintian for checking packages
+    - Additional Linting for a full repository structure
+
 
 Get it now
 ----------
