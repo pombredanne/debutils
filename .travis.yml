@@ -1,6 +1,6 @@
 language: python
 python:
-  - "3.4"
+#  - "3.4" # Python 3.4 is not supported by travis yet :(
   - "2.7"
   - "3.2"
 # command to install dependencies
