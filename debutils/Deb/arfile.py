@@ -133,22 +133,22 @@ class ArFile:
     ar_fmagic = bytearray([0x60, 0x0A])
     ar_fpad = bytearray([0x0A])
 
-    def __init__(self, file):
+    def __init__(self, arfile):
         """
-        :param file: file path or byte array of contents
+        :param arfile: file path or byte array of contents
         """
 
         # add instance data members
         self.files = ArFile.ArMembers()
 
-        if type(file) is str:
+        if type(arfile) is str:
             # file path; open the file and store the contents in self.bytes
-            with open(file, 'rb') as ar:
+            with open(arfile, 'rb') as ar:
                 self.bytes = ar.read()
 
-        if type(file) is bytearray:
+        if type(arfile) is bytearray:
             # file contents; just store it in self.bytes
-            self.bytes = file
+            self.bytes = arfile
 
         self.decode()
 
