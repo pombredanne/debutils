@@ -6,7 +6,6 @@ Read `ar` archive format
 import collections
 import struct
 import io
-import builtins
 
 
 class ArchiveError(Exception):
@@ -95,7 +94,7 @@ class ArFile:
         if hasattr(arfile, "read"):
             self.bytes = arfile.read()
 
-        if type(arfile) in [builtins.bytes, bytearray]:
+        if type(arfile) in [bytes, bytearray]:
             # file contents; just store it in self.bytes
             self.bytes = arfile
 
