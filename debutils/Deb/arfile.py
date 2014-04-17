@@ -86,6 +86,9 @@ class ArFile:
         self.files = collections.OrderedDict()
         self.bytes = bytearray()
 
+        if arfile is None:
+            raise ArchiveError("Not an AR archive")
+        
         if type(arfile) is str:
             # file path; open the file and store the contents in self.bytes
             with open(arfile, 'rb') as ar:
