@@ -5,14 +5,13 @@ Pythonic interface for accessing .deb files
 
 import tarfile
 import collections
-import collections.abc
 import time
 
 from debutils.Deb.arfile import ArFile
 from debutils.Deb.util import modestr
 
 
-class DebView(collections.abc.ItemsView):
+class DebView(collections.ItemsView):
     def __str__(self):
         s = ""
         for i in self:
