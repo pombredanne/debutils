@@ -1,1 +1,1 @@
-from debfile import DebFile
+from debutils.Deb.debpackage import DebPackage
