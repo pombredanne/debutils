@@ -5,75 +5,12 @@ Read `ar` archive format
 
 import collections
 import struct
+import io
+import builtins
 
 
 class ArchiveError(Exception):
     pass
-
-
-class ArMembers(collections.UserDict):
-    """
-    Simple data storage class with nice dot notation access for members.
-    """
-    # struct format for struct.unpack
-    ar_struct = "16s"   # char ar_name[16]
-    ar_struct += "12s"  # char ar_date[12]
-    ar_struct += "6s"   # char ar_uid[6]
-    ar_struct += "6s"   # char ar_gid[6]
-    ar_struct += "8s"   # char ar_mode[8]
-    ar_struct += "10s"  # char ar_size[10]
-    ar_struct += "2s"   # char ar_fmag[2]
-
-    def __init__(self):
-        super(ArMembers, self).__init__()
-        self.order = []
-
-    def unpack_into(self, packed_bytes):
-        """
-        :param packed_bytes: bytearray of struct ar_hdr to unpack
-        """
-        unpacked = struct.unpack(self.ar_struct, packed_bytes)
-        member = {
-            "name": unpacked[0].decode('utf-8').strip(), # ascii
-            "date": int(unpacked[1]),    # decimal
-            "uid": int(unpacked[2]),     # decimal
-            "gid": int(unpacked[3]),     # decimal
-            "mode": int(unpacked[4], 8), # octal
-            "size": int(unpacked[5]),    # decimal
-            "fmag": unpacked[6],         # ascii
-            "data": None,                # bytes
-        }
-        self.order.append(member["name"])
-        self.data[member["name"]] = member
-
-    def last(self):
-        """
-        :return: the name of the most recently added Member item
-        :raises KeyError: if no members yet exist
-        """
-        if len(self.order) == 0:
-            raise KeyError("No keys exist")
-
-        return self.order[-1]
-
-    def add_bytes(self, name=None, contents=None):
-        """
-        :param str name: Member name to add bytes to
-        :param bytearray contents: Contents of file to add to this member
-        :raises KeyError:
-            if there are no entries stored yet
-            if `name` is not None and the key `name` does not yet exist
-        """
-        if len(self.data) == 0:
-            raise KeyError("No keys exist")
-
-        if name is not None and name not in self.order:
-            raise KeyError("Key {key} does not exist".format(key=name))
-
-        if name is None:
-            name = self.last()
-
-        self.data[name]["data"] = contents
 
 
 class ArFile:
@@ -115,7 +52,7 @@ class ArFile:
 
     .. note::
 
-        Unused bytes in each field are set to character 0x20
+        Unused bytes in each header field are set to character 0x20
 
     .. note::
 
@@ -132,13 +69,23 @@ class ArFile:
     ar_fmagic = bytearray([0x60, 0x0A])
     ar_fpad = bytearray([0x0A])
 
+    # struct format for struct.unpack
+    ar_struct = "16s"   # char ar_name[16]
+    ar_struct += "12s"  # char ar_date[12]
+    ar_struct += "6s"   # char ar_uid[6]
+    ar_struct += "6s"   # char ar_gid[6]
+    ar_struct += "8s"   # char ar_mode[8]
+    ar_struct += "10s"  # char ar_size[10]
+    ar_struct += "2s"   # char ar_fmag[2]
+
     def __init__(self, arfile):
         """
         :param arfile: file path, file handle, or byte array of contents
         """
 
         # add instance data members
-        self.files = ArMembers()
+        self.files = collections.OrderedDict()
+        self.bytes = bytearray()
 
         if type(arfile) is str:
             # file path; open the file and store the contents in self.bytes
@@ -148,7 +95,7 @@ class ArFile:
         if hasattr(arfile, "read"):
             self.bytes = arfile.read()
 
-        if type(arfile) is bytearray:
+        if type(arfile) in [builtins.bytes, bytearray]:
             # file contents; just store it in self.bytes
             self.bytes = arfile
 
@@ -163,19 +110,25 @@ class ArFile:
         pos = 8
 
         while pos < len(self.bytes):
-            self.files.unpack_into(self.bytes[pos:(pos + 60)])
+            unpacked = struct.unpack(self.ar_struct, self.bytes[pos:(pos + 60)])
             pos += 60
 
-            name = self.files.last()
-            size = self.files[name]["size"]
-
-            # now pull over the file bytes
-            self.files.add_bytes(contents=self.bytes[pos:(pos + size)])
-            pos += size
+            member = {}
+            member["name"] = unpacked[0].decode('utf-8').strip()  # ascii
+            member["date"] = int(unpacked[1])     # decimal
+            member["uid"] = int(unpacked[2])    # decimal
+            member["gid"] = int(unpacked[3])      # decimal
+            member["mode"] = int(unpacked[4], 8)  # octal
+            member["size"] = int(unpacked[5])     # decimal
+            member["fmag"] = unpacked[6]          # bytes
+            member["data"] = io.BytesIO(self.bytes[pos:(pos + member["size"])])
+            pos += member["size"]
 
             # if the data was padded, skip the pad as well
-            if size % 2:
+            if member["size"] % 2:
                 pos += 1
+
+            self.files[member["name"]] = member
 
         # now erase self.bytes so we don't have the whole thing stored twice
         del self.bytes
