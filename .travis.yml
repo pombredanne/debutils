@@ -5,5 +5,5 @@ python:
   - "3.2"
 # command to install dependencies
 install: "pip install -r requirements.txt"
-##TODO: unit testing is not implemented yet
-script: true
+# unit test command
+script: "py.test ."
