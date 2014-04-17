@@ -96,7 +96,7 @@ class ArFile:
 
         if type(arfile) in [bytes, bytearray]:
             # file contents; just store it in self.bytes
-            self.bytes = arfile
+            self.bytes = bytearray(arfile)
 
         self.decode()
 
