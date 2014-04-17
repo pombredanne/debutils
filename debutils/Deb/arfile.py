@@ -88,18 +88,18 @@ class ArFile:
 
         if arfile is None:
             raise ArchiveError("Not an AR archive")
-        
-        if type(arfile) is str:
+
+        elif type(arfile) is str and '\x00' not in arfile:
             # file path; open the file and store the contents in self.bytes
             with open(arfile, 'rb') as ar:
-                self.bytes = bytearray(ar.read())
+                self.bytes = bytes(ar.read())
 
         elif hasattr(arfile, "read"):
-            self.bytes = bytearray(arfile.read())
+            self.bytes = bytes(arfile.read())
 
         else:
             # file contents; just store it in self.bytes
-            self.bytes = bytearray(arfile)
+            self.bytes = bytes(arfile)
 
         self.decode()
 
@@ -138,4 +138,3 @@ class ArFile:
     def __iter__(self):
         for f in self.files:
             yield f
-
