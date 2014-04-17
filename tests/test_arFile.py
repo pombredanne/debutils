@@ -14,8 +14,15 @@ class TestArFile:
         with pytest.raises(ArchiveError):
             ArFile(None)
 
-        with pytest.raises(FileNotFoundError):
-            ArFile("/this/path/does/not/exist")
+        try:
+            # only works in Python 3.3+
+            with pytest.raises(FileNotFoundError):
+                ArFile("/this/path/does/not/exist")
+
+        except NameError:
+            # on Python <=3.2, this should raise an IOError
+            with pytest.raises(IOError):
+                ArFile("/this/path/does/not/exist")
 
     def test_ar(self, ar):
         assert list(ar.files.keys()) == ["debian-binary", "control.tar.gz", "data.tar.gz"]
