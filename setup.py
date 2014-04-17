@@ -1,6 +1,9 @@
 from distutils.core import setup
 from pip.req import parse_requirements
-import pydeb._author
+
+import debutils._author
+
+import os
 
 # long_description is the contents of README.rst
 with open('README.rst') as readme:
@@ -13,13 +16,13 @@ test_reqs = parse_requirements('requirements-test.txt')
 ##TODO: fill in blank fields
 setup(
     name             = 'Debutils',
-    version          = pydeb._author.__version__,
+    version          = debutils._author.__version__,
     description      = 'Python library for doing things with Debian packages and repositories',
     long_description = long_desc,
-    author           = pydeb._author.__author__,
-    license          = pydeb._author.__license__,
+    author           = debutils._author.__author__,
+    license          = debutils._author.__license__,
     platform         = 'any',
-    url              = "",
+    url              = "https://github.com/Commod0re/debutils",
     download_url     = "",
 
     classifiers = [
@@ -35,7 +38,9 @@ setup(
     ],
     keywords    = [],
 
-    install_requires = [str(ir.req) for ir in reqs],
+    install_requires = [ str(ir.req) for ir in reqs ],
 
-    packages = [],
+    packages = [
+        "debutil"
+    ],
 )

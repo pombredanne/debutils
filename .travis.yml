@@ -4,6 +4,9 @@ python:
   - "2.7"
   - "3.2"
 # command to install dependencies
-install: "pip install -r requirements.txt"
-# unit test command
-script: "py.test ."
+install:
+ - pip install -r requirements.txt
+ - pip install -r requirements-test.txt
+ - pip install .
+# use setup.py to invoke testing
+script: py.test test
