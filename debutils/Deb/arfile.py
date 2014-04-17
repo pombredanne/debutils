@@ -89,12 +89,12 @@ class ArFile:
         if type(arfile) is str:
             # file path; open the file and store the contents in self.bytes
             with open(arfile, 'rb') as ar:
-                self.bytes = ar.read()
+                self.bytes = bytearray(ar.read())
 
-        if hasattr(arfile, "read"):
-            self.bytes = arfile.read()
+        elif hasattr(arfile, "read"):
+            self.bytes = bytearray(arfile.read())
 
-        if type(arfile) in [bytes, bytearray]:
+        else:
             # file contents; just store it in self.bytes
             self.bytes = bytearray(arfile)
 
