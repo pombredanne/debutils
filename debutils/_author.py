@@ -10,4 +10,4 @@ from distutils.version import StrictVersion
 __author__ = "Michael Greene"
 __copyright__ = "Copyright (c) 2014 Michael Greene"
 __license__ = "MIT"
-__version__ = StrictVersion("0.0.0")
+__version__ = str(StrictVersion("0.0.0"))

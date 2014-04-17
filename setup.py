@@ -21,7 +21,6 @@ setup(
     long_description = long_desc,
     author           = debutils._author.__author__,
     license          = debutils._author.__license__,
-    platform         = 'any',
     url              = "https://github.com/Commod0re/debutils",
     download_url     = "",
 
@@ -41,6 +40,6 @@ setup(
     install_requires = [ str(ir.req) for ir in reqs ],
 
     packages = [
-        "debutil"
+        "debutils"
     ],
 )
