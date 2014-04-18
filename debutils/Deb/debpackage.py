@@ -1,9 +1,8 @@
 """ package.py
 
-Primary API for debutils.Deb
+Primary API for package-related actions
 """
 
-from debutils.Deb.debfile import DebFile
 
 class DebPackage:
     ##TODO: design the API for this
