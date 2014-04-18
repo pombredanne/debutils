@@ -26,8 +26,17 @@ def deb_contents():
 
 @pytest.fixture(scope="module")
 def dpkg_contents():
-    with open("tests/testdata/dpkg_contents_example_1.0-1_all", 'r') as d:
-        return d.read() + '\n'
+    import os.path
+
+    # compare directly against the output of `dpkg --contents`
+    if os.path.isfile("/usr/bin/dpkg"):
+        import subprocess
+        return subprocess.check_output(["/usr/bin/dpkg", "--contents", "tests/testdata/example_1.0-1_all.deb"])
+
+    # no dpkg; use the backup file
+    else:
+        with open("tests/testdata/dpkg_contents_example_1.0-1_all", 'r') as d:
+            return d.read() + '\n'
 
 
 class TestDebFile:
