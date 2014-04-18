@@ -11,4 +11,4 @@ install:
  - pip install -r requirements-test.txt
  - pip install .
 # use setup.py to invoke testing
-script: py.test tests
+script: py.test -vv tests
