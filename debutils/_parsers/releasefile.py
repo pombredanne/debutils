@@ -89,7 +89,7 @@ class ReleaseFile(FileLoader):
                 continue
 
             # parse fields
-            f = re.split(r'([A-Za-z1256]+):', line)[1:]
+            f = re.split(r'^([A-Za-z1256]+): ?', line)[1:]
 
             # hash field starters
             # MD5Sum:
@@ -114,8 +114,6 @@ class ReleaseFile(FileLoader):
             # no continue here because it's a field that is parsed further down
             else:
                 md5s = sha1s = sha256s = False
-                f = re.split(r'([A-Z][a-z]+): {0,1}(.*)', line)[1:-1]
-
 
             # Origin: str
             if f[0] == "Origin":
@@ -164,7 +162,6 @@ class ReleaseFile(FileLoader):
 
             # some other field
             raise NotImplementedError("Unexpected input: " + line)
-
 
     def sign(self):
         ##TODO: sign a Release file
