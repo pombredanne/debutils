@@ -31,7 +31,7 @@ def dpkg_contents():
     # compare directly against the output of `dpkg --contents`
     if os.path.isfile("/usr/bin/dpkg"):
         import subprocess
-        o =  subprocess.check_output(["/usr/bin/dpkg", "--contents", "tests/testdata/example_1.0-1_all.deb"])
+        o =  subprocess.check_output(["/usr/bin/dpkg", "--contents", "tests/testdata/example_1.0-1_all.deb"]).decode("ascii")
 
     # no dpkg; use the backup file
     else:
