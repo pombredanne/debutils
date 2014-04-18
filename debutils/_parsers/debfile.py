@@ -7,21 +7,36 @@ import tarfile
 import collections
 import time
 
-from debutils.Deb.arfile import ArFile
-from debutils.Deb.util import modestr
+from .._parsers.arfile import ArFile
+from ..util import modestr
 
 
 class DebView(collections.ItemsView):
+    date_format = "%Y-%m-%d %H:%M"
+
     def __str__(self):
         s = ""
         for i in self:
+            mode = "-"
+            member = i["name"]
+
+            if i["type"] == tarfile.DIRTYPE:
+                mode = "d"
+                member += "/"
+
+            if i["type"] in [tarfile.SYMTYPE, tarfile.LNKTYPE]:
+                mode = "l"
+                member += " -> " + i["linkto"]
+
+            mode += modestr(i["mode"])
+
             s += "{mode:10s} {uid}/{gid} {size:>9d} {date:16} {member}\n".format(
-                mode=modestr(i[1]["mode"]),
-                uid=i[1]["uname"],
-                gid=i[1]["gname"],
-                size=i[1]["size"],
-                date=time.strftime("%Y-%m-%d %H:%M:%S", i[1]["mtime"]),
-                member=i[0]
+                mode=mode,
+                uid=i["uname"],
+                gid=i["gname"],
+                size=i["size"],
+                date=time.strftime(self.date_format, i["mtime"]),
+                member=member
             )
         return s
 
@@ -46,6 +61,8 @@ class MetaDeb(collections.OrderedDict):
                 member["gid"] = ti.gid
                 member["uname"] = ti.uname
                 member["gname"] = ti.gname
+                if ti.issym() or ti.islnk():
+                    member["linkto"] = ti.linkname
 
 
                 self[ti.name] = member
@@ -56,7 +73,7 @@ class MetaDeb(collections.OrderedDict):
     def __str__(self):
         s = ""
         for i in self.items():
-            s += str(i) + "\n"
+            s += str(i)
         return s
 
 
@@ -94,16 +111,3 @@ class DebFile:
 
     def contents(self):
         return self._contents.items()
-
-if __name__ == "__main__":
-    example = DebFile("tests/testdata/example_1.0-1_all.deb")
-
-    print("print(example.contents())")
-    print(example.contents())
-    print(type(example.contents()))
-    print()
-
-    print("for i in example.contents()")
-    for i in example.contents():
-        print(i)
-        print(type(i))

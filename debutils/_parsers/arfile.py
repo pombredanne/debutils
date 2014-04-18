@@ -7,12 +7,14 @@ import collections
 import struct
 import io
 
+from .fileloader import FileLoader
+
 
 class ArchiveError(Exception):
     pass
 
 
-class ArFile:
+class ArFile(FileLoader):
     """
     Read GNU ar archives.
 
@@ -84,26 +86,14 @@ class ArFile:
 
         # add instance data members
         self.files = collections.OrderedDict()
-        self.bytes = bytearray()
 
         if arfile is None:
-            raise ArchiveError("Not an AR archive")
+            raise NotImplementedError("Cannot create AR archives yet")
 
-        elif type(arfile) is str and '\x00' not in arfile:
-            # file path; open the file and store the contents in self.bytes
-            with open(arfile, 'rb') as ar:
-                self.bytes = bytes(ar.read())
+        # load the file and parse it
+        super(ArFile, self).__init__(arfile)
 
-        elif hasattr(arfile, "read"):
-            self.bytes = bytes(arfile.read())
-
-        else:
-            # file contents; just store it in self.bytes
-            self.bytes = bytes(arfile)
-
-        self.decode()
-
-    def decode(self):
+    def parse(self):
         # check the global header
         if self.bytes[:8] != self.ar_magic:
             raise ArchiveError("Not an AR archive")
