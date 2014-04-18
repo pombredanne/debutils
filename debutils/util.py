@@ -9,7 +9,7 @@ def modestr(mode):
     :return: string representation of the provided mode
     """
 
-    mstr = "-"
+    mstr = ""
     chrs = ["r", "w", "x"]
 
     for x in range(0, 9):
