@@ -1,25 +1,50 @@
 import pytest
-from debutils.Deb.debfile import DebFile
+import re
+
+from debutils._parsers.debfile import DebFile
 
 
-@pytest.fixture(scope="module",
-                params=["tests/testdata/example_1.0-1_all.deb",
-                        open("tests/testdata/example_1.0-1_all.deb", 'rb'),
-                        open("tests/testdata/example_1.0-1_all.deb", 'rb').read()])
-def deb(request):
-    return DebFile(request.param)
+@pytest.fixture(scope="module")
+def deb():
+    return DebFile("tests/testdata/example_1.0-1_all.deb")
+
+
+@pytest.fixture(scope="module")
+def deb_contents():
+    contents = []
+    with open("tests/testdata/dpkg_contents_example_1.0-1_all", 'r') as d:
+        for line in d.readlines():
+            f = re.split(r'[\-ldrwxsS]{10} [a-z0-9]+/[a-z0-9]+\s+[0-9]+ [0-9\-]+ [0-9:]+ (.*)\n', line)
+
+            member = f[1][:-1] if f[1][-1:] == "/" else f[1]
+            member = member.split(" ->")[0] if "->" in member else member
+
+            contents.append(member)
+
+    return contents
+
+
+@pytest.fixture(scope="module")
+def dpkg_contents():
+    with open("tests/testdata/dpkg_contents_example_1.0-1_all", 'r') as d:
+        return d.read() + '\n'
 
 
 class TestDebFile:
     def test_load(self, deb):
         pass
 
-    def test_contents(self, deb):
-        assert len(deb.contents()) == 8
+    def test_contents(self, deb, deb_contents):
+        contents = list(deb_contents)
+        assert len(deb.contents()) == len(contents)
 
-        c = [".", "./usr", "./usr/share", "./usr/share/doc", "./usr/share/doc/example",
-             "./usr/share/doc/example/README.Debian", "./usr/share/doc/example/copyright",
-             "./usr/share/doc/example/changelog.Debian.gz"
-             ]
         for i, f in enumerate(deb.contents()):
-            assert f["name"] == c[i]
+            assert f["name"] == contents[i]
+
+    def test_print_contents(self, deb, dpkg_contents, capsys):
+        print(deb.contents())
+        out, _ = capsys.readouterr()
+
+        assert out == dpkg_contents
+
+
