@@ -40,6 +40,9 @@ setup(
     install_requires = [ str(ir.req) for ir in reqs ],
 
     packages = [
-        "debutils", "debutils.Deb"
+        "debutils",
+        "debutils.Deb",
+        "debutils.Repo",
+        "debutils._parsers",
     ],
 )
