@@ -1,0 +1,9 @@
+drwxr-xr-x root/root         0 2014-04-17 18:28 ./
+drwxr-xr-x root/root         0 2014-04-17 18:28 ./usr/
+drwxr-xr-x root/root         0 2014-04-17 18:28 ./usr/share/
+drwxr-xr-x root/root         0 2014-04-17 18:28 ./usr/share/doc/
+drwxr-xr-x root/root         0 2014-04-17 18:28 ./usr/share/doc/example/
+-rw-r--r-- root/root       186 2014-04-16 13:04 ./usr/share/doc/example/README.Debian
+-rw-r--r-- root/root      1496 2014-04-16 13:04 ./usr/share/doc/example/copyright
+-rw-r--r-- root/root       180 2014-04-16 13:04 ./usr/share/doc/example/changelog.Debian.gz
+lrwxrwxrwx root/root         0 2014-04-17 18:28 ./usr/share/doc/example/README.Debian.symlink -> README.Debian
