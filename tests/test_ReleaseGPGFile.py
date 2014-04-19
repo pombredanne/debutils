@@ -1,9 +1,5 @@
 import pytest
-from debutils._parsers.releasefile import ReleaseFile, ReleaseGPGFile
-
-@pytest.fixture(scope="module")
-def release():
-    return ReleaseFile("tests/testdata/Release")
+from debutils._parsers.releasefile import ReleaseGPGFile
 
 @pytest.fixture(scope="module")
 def release_gpg():
@@ -11,5 +7,8 @@ def release_gpg():
 
 
 class TestReleaseGPGFile:
-    def test_releasegpgfile(self, release_gpg):
+    def test_parse(self, release_gpg):
+        pass
+
+    def test_print(self, release_gpg):
         pass
