@@ -10,4 +10,10 @@ cd "$(dirname "$0")"
 KEY_SIG=$( $GPG --list-sigs | awk '/^sig/ {print $3}' )
 
 # generate detached signature Release.gpg
+echo "Signing with key ${KEY_SIG}"
 $GPG --default-key $KEY_SIG --armor --detach-sign --sign --output Release.gpg Release
+
+# and verify:
+echo ""
+echo "Verifying signature..."
+$GPG -vv --verify ./Release.gpg ./Release
