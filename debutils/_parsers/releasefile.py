@@ -6,6 +6,7 @@ file parsers for Release and Release.gpg
 import collections
 import re
 import time
+import base64
 
 from .fileloader import FileLoader
 
@@ -169,6 +170,35 @@ class ReleaseFile(FileLoader):
 
 
 class ReleaseGPGFile(FileLoader):
+    gpg_sig_format = \
+        r'^-----BEGIN PGP SIGNATURE-----$\n'\
+        r'(.*)\n\n'\
+        r'(.*)'\
+        r'^(.*)\n'\
+        r'^-----END PGP SIGNATURE-----$\n'
+
+    def __init__(self, releasesig):
+        self.headers = collections.OrderedDict()
+        self.sig     = None
+        self.crc  = None
+
+        super(ReleaseGPGFile, self).__init__(releasesig)
+
     def parse(self):
-        ##TODO: parse a Release.gpg file
-        raise NotImplementedError()
+        # parsing/decoding using the RFC 4880 section on "Forming ASCII Armor"
+        # https://tools.ietf.org/html/rfc4880#section-6.2
+        k = re.split(self.gpg_sig_format, self.bytes.decode(), flags=re.MULTILINE|re.DOTALL)[1:-1]
+
+        # parse header field(s)
+        h = [ h for h in re.split(r'^([^:]*): (.*)$\n?', k[0], flags=re.MULTILINE) if h != '' ]
+        for key, val in [ (h[i], h[i+1]) for i in range(0, len(h), 2) ]:
+            self.headers[key] = val
+
+        self.sig = base64.b64decode(k[1].replace('\n', ''))
+        self.crc = base64.b64decode(k[2])
+
+    # def __str__(self):
+    #     return \
+    #         "-----BEGIN PGP SIGNATURE-----\n"\
+    #
+    #         "-----END PGP SIGNATURE-----\n"
