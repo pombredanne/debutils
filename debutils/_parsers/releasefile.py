@@ -194,8 +194,8 @@ class ReleaseGPGFile(FileLoader):
         for key, val in [ (h[i], h[i+1]) for i in range(0, len(h), 2) ]:
             self.headers[key] = val
 
-        self.sig = base64.b64decode(k[1].replace('\n', ''))
-        self.crc = base64.b64decode(k[2])
+        self.sig = base64.b64decode(k[1].replace('\n', '').encode())
+        self.crc = base64.b64decode(k[2].encode())
 
     # def __str__(self):
     #     return \
