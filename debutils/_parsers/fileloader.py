@@ -4,6 +4,7 @@ File-based metaclass to reduce duplicate code.
 """
 
 import os.path
+import requests
 
 try:
     e = FileNotFoundError
@@ -20,12 +21,29 @@ class FileLoader(object):
         if lfile is None:
             pass
 
-        # str without NUL bytes means this is likely a file path
-        # because in 2.x, bytes is str
-        elif type(lfile) is str and '\x00' not in lfile:
-            # does the file exist?
-            if os.path.exists(lfile):
+        # we have been passed a file-like object
+        elif hasattr(lfile, "read"):
+            self.bytes = bytes(lfile.read())
 
+            # try to extract the path, too
+            if hasattr(lfile, "name") and os.path.exists(os.path.realpath(lfile.name)):
+                self.path = lfile.name
+
+        # str without NUL bytes means this is likely a file path or URL
+        # because in 2.x, bytes is just an alias of str
+        elif type(lfile) is str and '\x00' not in lfile:
+            # is this a URL?
+            if "://" in lfile:
+                r = requests.get(lfile, verify=True)
+
+                if not r.ok:
+                    raise e(lfile)
+
+                self.bytes = r.content
+
+            # this may be a file path, then
+            # does the path already exist?
+            elif os.path.exists(lfile):
                 self.path = os.path.realpath(lfile)
 
                 with open(lfile, 'rb') as lf:
@@ -40,18 +58,13 @@ class FileLoader(object):
             else:
                 raise e(lfile)
 
-        # we have been passed a file-like object
-        elif hasattr(lfile, "read"):
-            self.bytes = bytes(lfile.read())
-
-            # try to extract the path, too
-            if hasattr(lfile, "name") and os.path.exists(os.path.realpath(lfile.name)):
-                self.path = lfile.name
-
         # we have been passed the contents of a file that were read elsewhere
-        else:
+        elif type(lfile) in [str, bytes]:
             self.bytes = bytes(lfile)
 
+        # some other thing
+        else:
+            raise TypeError(type(lfile) + "Not expected")
 
         # try to kick off the parser
         # this only works on properly implemented children of this type
