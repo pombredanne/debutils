@@ -6,7 +6,6 @@ file parsers for Release and Release.gpg
 import collections
 import re
 import time
-import pgpdump
 
 from .fileloader import FileLoader
 from .pgp import PGPSignature
@@ -174,4 +173,4 @@ class ReleaseFile(FileLoader):
 
 class ReleaseSignature(PGPSignature):
     pass
-    ##TODO: convenience functions for signing and verifying a ReleaseFile
+    ##TODO: differentiate this from PGPSignature somehow
