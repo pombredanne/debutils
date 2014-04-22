@@ -1,28 +1,41 @@
 import pytest
-import pgpdump
 from debutils.pgp.signature import PGPSignature
 
-@pytest.fixture(scope="module",
-                params=[
-                    "tests/testdata/Release.gpg",
-                    "http://us.archive.ubuntu.com/ubuntu/dists/precise/Release.gpg",
-                    "http://http.debian.net/debian/dists/sid/Release.gpg"
-                ])
-def pgpsig(request):
-    return (PGPSignature(request.param), request.param)
+test_files = [
+    "tests/testdata/Release.gpg",
+    "http://us.archive.ubuntu.com/ubuntu/dists/precise/Release.gpg",
+    "http://http.debian.net/debian/dists/sid/Release.gpg"
+]
 
+
+@pytest.fixture(scope="module", params=test_files)
+def pgpsig(request):
+    return PGPSignature(request.param)
+
+
+@pytest.fixture(scope="module", params=test_files)
+def pgpdump(request):
+    import pgpdump
+    import requests
+
+    if "://" in request.param:
+        raw = requests.get(request.param).content
+    else:
+        with open(request.param, 'rb') as r:
+            raw = r.read()
+
+    return pgpdump.AsciiData(raw)
 
 class TestPGPSignature:
-    def test_parse(self, pgpsig):
-        pgps = pgpsig[0]
-        pgps_path = pgpsig[1]
+    def test_parse(self, pgpsig, pgpdump):
+        ##TODO: compare pgpdump results to PGPSignature
+        pass
 
-        assert pgps.crc == pgps.crc24()
+    def test_crc24(self, pgpsig):
+        assert pgpsig.crc == pgpsig.crc24()
 
     def test_print(self, pgpsig, capsys):
-        pgps = pgpsig[0]
-
-        print(pgps)
+        print(pgpsig)
         out, _ = capsys.readouterr()
 
-        assert out == pgps.bytes.decode() + '\n'
+        assert out == pgpsig.bytes.decode() + '\n'
