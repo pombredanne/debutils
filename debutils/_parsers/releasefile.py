@@ -168,13 +168,8 @@ class ReleaseFile(FileLoader):
                 self.description = f[1]
                 continue
 
-
             # some other field
             raise NotImplementedError("Unexpected input: " + line)
-
-    def sign(self):
-        ##TODO: sign a Release file
-        raise NotImplementedError()
 
 
 class ReleaseGPGFile(FileLoader):
@@ -227,6 +222,7 @@ class ReleaseGPGFile(FileLoader):
 
         crc = self.crc24_init
         sig = [ ord(i) for i in self.sig ] if type(self.sig) is str else self.sig
+        
         for loc in range(0, len(self.sig)):
             crc ^= sig[loc] << 16
 
