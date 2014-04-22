@@ -21,12 +21,3 @@ def release_sign(request):
 
 class TestDist:
     pass
-    # def test_verify_release(self, release_verify):
-    #     with pytest.raises(NotImplementedError):
-    #         ##TODO: write this test once sign_with is implemented
-    #         release_verify.verify()
-    #
-    # def test_sign_release(self, release_sign):
-    #     with pytest.raises(NotImplementedError):
-    #         ##TODO: write this test once sign_with is implemented
-    #         release_sign.sign_with(None)
