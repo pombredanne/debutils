@@ -1,5 +1,5 @@
 import pytest
-from debutils._parsers.releasefile import ReleaseGPGFile
+from debutils._parsers.releasefile import ReleaseSignature
 
 @pytest.fixture(scope="module",
                 params=[
@@ -8,10 +8,10 @@ from debutils._parsers.releasefile import ReleaseGPGFile
                     "http://http.debian.net/debian/dists/sid/Release.gpg"
                 ])
 def release_gpg(request):
-    return ReleaseGPGFile(request.param)
+    return ReleaseSignature(request.param)
 
 
-class TestReleaseGPGFile:
+class TestReleaseSignature:
     def test_parse(self, release_gpg):
         assert release_gpg.crc == release_gpg.crc24()
 
