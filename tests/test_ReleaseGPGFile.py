@@ -4,7 +4,8 @@ from debutils._parsers.releasefile import ReleaseGPGFile
 @pytest.fixture(scope="module",
                 params=[
                     "tests/testdata/Release.gpg",
-                    "http://us.archive.ubuntu.com/ubuntu/dists/precise/Release.gpg"
+                    "http://us.archive.ubuntu.com/ubuntu/dists/precise/Release.gpg",
+                    "http://http.debian.net/debian/dists/sid/Release.gpg"
                 ])
 def release_gpg(request):
     return ReleaseGPGFile(request.param)
