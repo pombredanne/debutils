@@ -3,10 +3,7 @@
 Generate and sign Release files
 """
 
-import io
-
 from .._parsers.releasefile import ReleaseFile, ReleaseGPGFile
-from .._parsers.fileloader import FileLoader
 
 
 class ReleaseError(Exception):
