@@ -8,7 +8,25 @@ import collections
 import time
 
 from .._parsers.arfile import ArFile
-from ..util import modestr
+
+
+def modestr(mode):
+    """
+    :param int mode: unix mode
+    :return: string representation of the provided mode
+    """
+
+    mstr = ""
+    chrs = ["r", "w", "x"]
+
+    for x in range(0, 9):
+        if mode & (256 >> x):
+            mstr += chrs[x % 3]
+
+        else:
+            mstr += "-"
+
+    return mstr
 
 
 class DebView(collections.ItemsView):
@@ -63,7 +81,6 @@ class MetaDeb(collections.OrderedDict):
                 member["gname"] = ti.gname
                 if ti.issym() or ti.islnk():
                     member["linkto"] = ti.linkname
-
 
                 self[ti.name] = member
 
