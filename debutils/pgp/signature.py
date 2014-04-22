@@ -44,6 +44,7 @@ from .util import bytes_to_int, int_to_bytes
 # resulting hash field is used in the signature algorithm and placed
 # at the end of the Signature packet.
 
+
 class PGPSignature(FileLoader):
     pgp_signature_ascii_format = \
         r'^-----BEGIN PGP SIGNATURE-----$\n'\
