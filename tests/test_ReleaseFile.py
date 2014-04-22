@@ -18,7 +18,7 @@ class TestReleaseFile:
         import re
 
         try:
-            t = [str, unicode, None]
+            t = [str, unicode, type(None)]
         except NameError:
             t = [str, type(None)]
 
