@@ -1,9 +1,13 @@
 import pytest
 from debutils._parsers.releasefile import ReleaseFile
 
-@pytest.fixture(scope="module")
-def release():
-    return ReleaseFile("tests/testdata/Release")
+@pytest.fixture(scope="module",
+                params=[
+                    "tests/testdata/Release",
+                    "http://us.archive.ubuntu.com/ubuntu/dists/precise/Release",
+                ])
+def release(request):
+    return ReleaseFile(request.param)
 
 
 class TestReleaseFile:
@@ -33,9 +37,9 @@ class TestReleaseFile:
         assert type(release.codename) in t
         assert release.codename == "precise"
 
+        # don't check the date since we're downloading one from the internet now
         assert type(release.date) is time.struct_time
-        assert time.strftime(ReleaseFile.date_format, release.date) == "Wed, 25 Apr 2012 22:49:23 UTC"
-
+        
         assert type(release.architectures) is list
         assert len(release.architectures) == 5
         assert release.architectures == ["amd64", "armel", "armhf", "i386", "powerpc"]
@@ -48,7 +52,7 @@ class TestReleaseFile:
         assert release.description == "Ubuntu Precise 12.04"
 
         assert type(release.files) is collections.OrderedDict
-        assert len(list(release.files.keys())) == 160
+        assert len(list(release.files.keys())) > 0
         for rfile in release.files.keys():
             assert type(release.files[rfile]) is dict
             assert len(release.files[rfile]) == 4
