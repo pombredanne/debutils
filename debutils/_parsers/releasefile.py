@@ -8,7 +8,7 @@ import re
 import time
 
 from .fileloader import FileLoader
-from .debutils.pgp import PGPSignature
+from ..pgp.signature import PGPSignature
 
 
 class ReleaseFile(FileLoader):
