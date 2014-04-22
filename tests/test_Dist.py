@@ -1,6 +1,6 @@
 import pytest
 
-from debutils.Repo import Release
+from debutils.Repo import Dist
 
 
 @pytest.fixture(scope="module",
@@ -12,14 +12,14 @@ from debutils.Repo import Release
                      "http://http.debian.net/debian/dists/sid/Release.gpg")
                 ])
 def release_verify(request):
-    return Release(request.param[0], request.param[1])
+    return Dist(request.param[0], request.param[1])
 
 @pytest.fixture(scope="module")
 def release_sign(request):
-    return Release("tests/testdata/Release")
+    return Dist("tests/testdata/Release")
 
 
-class TestRelease:
+class TestDist:
     pass
     # def test_verify_release(self, release_verify):
     #     with pytest.raises(NotImplementedError):

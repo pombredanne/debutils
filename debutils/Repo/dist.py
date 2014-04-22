@@ -6,11 +6,7 @@ Generate and sign Release files
 from .._parsers.releasefile import ReleaseFile, ReleaseSignature
 
 
-class ReleaseError(Exception):
-    pass
-
-
-class Release:
+class Dist:
     def __init__(self, rfile=None, sigfile=None):
         self.release = ReleaseFile(rfile)
         self.sig = ReleaseGPGFile(sigfile)

@@ -1,1 +1,1 @@
-from .release import Release
+from .dist import Dist
