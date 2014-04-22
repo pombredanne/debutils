@@ -1,6 +1,6 @@
 """ util.py
 
-utility functions for debutils.Deb
+utility functions for debutils.pgp
 """
 
 def bytes_to_int(b):

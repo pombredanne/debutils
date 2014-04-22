@@ -7,8 +7,8 @@ import collections
 import re
 import hashlib
 
-from ..fileloader import FileLoader
-from ...util import bytes_to_int, int_to_bytes
+from .._parsers.fileloader import FileLoader
+from .util import bytes_to_int, int_to_bytes
 
 # from the Computing Signatures section of RFC 4880 (http://tools.ietf.org/html/rfc4880#section-5.2.4)
 #

@@ -44,6 +44,6 @@ setup(
         "debutils.Deb",
         "debutils.Repo",
         "debutils._parsers",
-        "debutils._parsers.pgp",
+        "debutils.pgp",
     ],
 )
