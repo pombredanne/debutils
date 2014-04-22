@@ -24,6 +24,7 @@ class ReleaseFile(FileLoader):
         self.version = None
         self.codename = None
         self.date = None
+        self.valid_until = None
         self.architectures = []
         self.components = []
         self.description = None
@@ -91,7 +92,7 @@ class ReleaseFile(FileLoader):
                 continue
 
             # parse fields
-            f = re.split(r'^([A-Za-z1256]+): ?', line)[1:]
+            f = re.split(r'^([A-Za-z1256\-]+): ?', line)[1:]
 
             # hash field starters
             # MD5Sum:
@@ -147,6 +148,11 @@ class ReleaseFile(FileLoader):
                 self.date = time.strptime(f[1], self.date_format)
                 continue
 
+            # Valid-Until: strptime
+            if f[0] == "Valid-Until":
+                self.valid_until = time.strptime(f[1], self.date_format)
+                continue
+
             # Architectures: space delimited list
             if f[0] == "Architectures":
                 self.architectures = f[1].split(" ")
@@ -161,6 +167,7 @@ class ReleaseFile(FileLoader):
             if f[0] == "Description":
                 self.description = f[1]
                 continue
+
 
             # some other field
             raise NotImplementedError("Unexpected input: " + line)
