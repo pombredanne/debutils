@@ -5,6 +5,7 @@ from debutils._parsers.releasefile import ReleaseFile
                 params=[
                     "tests/testdata/Release",
                     "http://us.archive.ubuntu.com/ubuntu/dists/precise/Release",
+                    "http://http.debian.net/debian/dists/sid/Release",
                 ])
 def release(request):
     return ReleaseFile(request.param)
@@ -17,42 +18,32 @@ class TestReleaseFile:
         import re
 
         try:
-            t = [str, unicode]
+            t = [str, unicode, None]
         except NameError:
-            t = [str]
+            t = [str, type(None)]
 
-        # check fields
+        # check fields - these fields are not necessarily mandatory
         assert type(release.origin) in t
-        assert release.origin == "Ubuntu"
-
         assert type(release.label) in t
-        assert release.label == "Ubuntu"
-
         assert type(release.suite) in t
-        assert release.suite == "precise"
-
         assert type(release.version) in t
-        assert release.version == "12.04"
-
         assert type(release.codename) in t
-        assert release.codename == "precise"
-
-        # don't check the date since we're downloading one from the internet now
-        assert type(release.date) is time.struct_time
-        
-        assert type(release.architectures) is list
-        assert len(release.architectures) == 5
-        assert release.architectures == ["amd64", "armel", "armhf", "i386", "powerpc"]
-
-        assert type(release.components) is list
-        assert len(release.components) == 4
-        assert release.components == ["main", "restricted", "universe", "multiverse"]
-
         assert type(release.description) in t
-        assert release.description == "Ubuntu Precise 12.04"
 
+        # these fields are also optional
+        assert type(release.date) in [time.struct_time, type(None)]
+        assert type(release.date) in [time.struct_time, type(None)]
+
+        # these fields are not optional
+        assert type(release.architectures) is list
+        assert len(release.architectures) > 0
+        assert type(release.components) is list
+        assert len(release.components) > 0
+
+        # and files are important
         assert type(release.files) is collections.OrderedDict
         assert len(list(release.files.keys())) > 0
+
         for rfile in release.files.keys():
             assert type(release.files[rfile]) is dict
             assert len(release.files[rfile]) == 4
