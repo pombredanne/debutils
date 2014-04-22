@@ -17,7 +17,7 @@ class FileLoader(object):
         self.bytes = bytes()
         self.path = None
 
-        # NoneType means we're creating a new file, probably in-memory
+        # None means we're creating a new file, probably in-memory
         if lfile is None:
             pass
 
