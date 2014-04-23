@@ -9,6 +9,7 @@ import hashlib
 
 from .._parsers.fileloader import FileLoader
 from .util import bytes_to_int, int_to_bytes
+from .packet import Packet
 
 
 class PGPSignature(FileLoader):
@@ -27,11 +28,14 @@ class PGPSignature(FileLoader):
         self.signature_packet = None
         self.crc = None
 
-        ##TODO: handle creating a new signature
         super(PGPSignature, self).__init__(sigf)
+        ##TODO: handle creating a new signature
 
-    ##TODO: fully parse PGP signature packet
     def parse(self):
+        # nothing to parse; this is a new signature
+        if self.bytes == b'':
+            return
+
         # parsing/decoding using the RFC 4880 section on "Forming ASCII Armor"
         # https://tools.ietf.org/html/rfc4880#section-6.2
         k = re.split(self.pgp_signature_ascii_format, self.bytes.decode(), flags=re.MULTILINE | re.DOTALL)[1:-1]
@@ -48,7 +52,8 @@ class PGPSignature(FileLoader):
         if self.crc != self.crc24():
             raise Exception("Bad CRC")
 
-        ##TODO: dump fields in signature_packet per RFC 4880, without using pgpdump
+        # dump fields in signature_packet per RFC 4880, without using pgpdump
+        self.fields = Packet(self.signature_packet)
 
     def crc24(self):
         # CRC24 computation, as described in the RFC 4880 section on Radix-64 Conversions
