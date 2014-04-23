@@ -1,6 +1,7 @@
 """ key.py
 
 """
+import collections
 
 from .._parsers.fileloader import FileLoader
 
@@ -39,6 +40,27 @@ from .._parsers.fileloader import FileLoader
 # at the end of the Signature packet.
 
 
+class PGPKey(object):
+    pass
+
+
+class PGPKeyLoader(FileLoader):
+    pubkey_magic = "PUBLIC KEY BLOCK"
+    privkey_magic = "PRIVATE KEY BLOCK"
+
+    def __init__(self, key):
+        self.keys = collections.OrderedDict()
+
+        super(PGPKeyLoader, self).__init__(key)
+
+    def parse(self):
+        ##TODO: load/parse PGP key(s) from ASCII armored files
+        ##TODO: load/parse PGP key(s) from binary files
+        ##TODO: load/parse PGP key(s) from GPG keyrings
+        ##TODO: load/parse PGP key(s) from GPG agent
+        pass
+
+
 class PGPKeyCollection(object):
     def __init__(self):
         ##TODO: create one or more PGPKey objects
@@ -66,11 +88,3 @@ class PGPKeyCollection(object):
     def list_privkeys(self):
         ##TODO: list loaded private keys
         pass
-
-
-class PGPKey:
-    ##TODO: load/parse PGP keys from ASCII armored files
-    ##TODO: load/parse PGP keys from binary files
-    ##TODO: load/parse PGP keys from GPG keyrings
-    ##TODO: load/parse PGP keys from GPG agent
-    pass
