@@ -6,30 +6,55 @@ test_files = [
     "http://us.archive.ubuntu.com/ubuntu/dists/precise/Release.gpg",
     "http://http.debian.net/debian/dists/sid/Release.gpg"
 ]
+test_ids = [
+    "local", "ubuntu-precise", "debian-sid"
+]
 
 
-@pytest.fixture(scope="module", params=test_files)
+@pytest.fixture(params=test_files, ids=test_ids)
 def pgpsig(request):
     return PGPSignature(request.param)
 
 
-@pytest.fixture(scope="module", params=test_files)
-def pgpdump(request):
+@pytest.fixture()
+def pgpd(request):
     import pgpdump
     import requests
 
-    if "://" in request.param:
-        raw = requests.get(request.param).content
+    path = test_files[test_ids.index(request.node._genid)]
+
+    if "://" in path:
+        raw = requests.get(path).content
     else:
-        with open(request.param, 'rb') as r:
+        with open(path, 'rb') as r:
             raw = r.read()
 
-    return pgpdump.AsciiData(raw)
+    return list(pgpdump.AsciiData(raw).packets())[0]
+
 
 class TestPGPSignature:
-    def test_parse(self, pgpsig, pgpdump):
-        ##TODO: compare pgpdump results to PGPSignature
-        pass
+    def test_parse(self, pgpsig, pgpd):
+        # packet header
+        #  packet tag
+        assert pgpsig.fields.header.tag.always_1 == 1
+        assert (pgpsig.fields.header.tag.format == 1) == pgpd.new
+        assert pgpsig.fields.header.tag.tag == 2
+        # packet header
+        assert pgpsig.fields.header.length == pgpd.length
+        # packet body
+        assert pgpsig.fields.packet.version == pgpd.sig_version
+        assert pgpsig.fields.packet.type == pgpd.raw_sig_type
+        assert pgpsig.fields.packet.key_algorithm == pgpd.raw_pub_algorithm
+        assert pgpsig.fields.packet.hash_algorithm == pgpd.raw_hash_algorithm
+        # hashed subpackets
+        #  creation time
+        assert pgpsig.fields.packet.get_creation_time().payload == pgpd.creation_time
+        # unhashed subpackets
+        #  key id
+        assert pgpsig.fields.packet.get_key_id().payload == pgpd.key_id
+        # left 16 of hash
+        assert pgpsig.fields.packet.hash2 == pgpd.hash2
+
 
     def test_crc24(self, pgpsig):
         assert pgpsig.crc == pgpsig.crc24()
