@@ -10,16 +10,10 @@ import hashlib
 from .._parsers.fileloader import FileLoader
 from .util import bytes_to_int, int_to_bytes
 from .packet import Packet
+from . import ASCII_ARMOR_BLOCK_REG, ASCII_ARMOR_BLOCK_FORMAT
 
 
 class PGPSignature(FileLoader):
-    pgp_signature_ascii_format = \
-        r'^-----BEGIN PGP SIGNATURE-----$\n'\
-        r'(.*)\n\n'\
-        r'(.*)'\
-        r'^(=.{4})\n'\
-        r'^-----END PGP SIGNATURE-----$\n'
-
     crc24_init = 0xB704CE
     crc24_poly = 0x1864CFB
 
@@ -38,7 +32,8 @@ class PGPSignature(FileLoader):
 
         # parsing/decoding using the RFC 4880 section on "Forming ASCII Armor"
         # https://tools.ietf.org/html/rfc4880#section-6.2
-        k = re.split(self.pgp_signature_ascii_format, self.bytes.decode(), flags=re.MULTILINE | re.DOTALL)[1:-1]
+        k = re.split(ASCII_ARMOR_BLOCK_REG.replace('%BLOCK_TYPE%', 'PGP SIGNATURE'),
+                     self.bytes.decode(), flags=re.MULTILINE | re.DOTALL)[1:-1]
 
         # parse header field(s)
         h = [ h for h in re.split(r'^([^:]*): (.*)$\n?', k[0], flags=re.MULTILINE) if h != '' ]
@@ -89,13 +84,9 @@ class PGPSignature(FileLoader):
         payload = base64.b64encode(self.signature_packet).decode()
         payload = '\n'.join(payload[i:i+64] for i in range(0, len(payload), 64))
 
-        return \
-            "-----BEGIN PGP SIGNATURE-----\n"\
-            "{headers}\n"\
-            "{sig}\n"\
-            "={crc}\n"\
-            "-----END PGP SIGNATURE-----\n".format(
+        return ASCII_ARMOR_BLOCK_FORMAT.format(
+                block_type="PGP SIGNATURE",
                 headers=headers,
-                sig=payload,
+                packet=payload,
                 crc=base64.b64encode(int_to_bytes(self.crc)).decode(),
             )

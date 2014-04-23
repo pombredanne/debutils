@@ -1,1 +1,1 @@
-from .pgp import PGPError
+from .pgp import *
