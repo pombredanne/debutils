@@ -1,11 +1,15 @@
 import pytest
 from debutils._parsers.releasefile import ReleaseFile
 
-@pytest.fixture(scope="module",
-                params=[
+@pytest.fixture(params=[
                     "tests/testdata/Release",
                     "http://us.archive.ubuntu.com/ubuntu/dists/precise/Release",
                     "http://http.debian.net/debian/dists/sid/Release",
+                ],
+                ids=[
+                    "local",
+                    "ubuntu-precise",
+                    "debian-sid",
                 ])
 def release(request):
     return ReleaseFile(request.param)

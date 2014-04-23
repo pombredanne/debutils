@@ -9,20 +9,27 @@ except NameError:
     e = IOError
 
 
-@pytest.fixture(scope="module",
-                params=[
+@pytest.fixture(params=[
                     "http://www.dancewithgrenades.com/robots.txt",
                     "https://www.google.com/robots.txt"
+                ],
+                ids=[
+                    "http",
+                    "https",
                 ])
 def load_url(request):
     return FileLoader(request.param)
 
 
-@pytest.fixture(scope="module",
-                params=[
+@pytest.fixture(params=[
                     "tests/testdata/example_1.0-1_all.deb",
                     "tests/testdata/sym_example_1.0-1_all.deb",
                     open("tests/testdata/example_1.0-1_all.deb", 'rb'),
+                ],
+                ids=[
+                    "path",
+                    "symlink",
+                    "fileobj",
                 ])
 def load_local(request):
     return FileLoader(request.param)

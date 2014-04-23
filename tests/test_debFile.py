@@ -4,12 +4,12 @@ import re
 from debutils._parsers.debfile import DebFile
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def deb():
     return DebFile("tests/testdata/example_1.0-1_all.deb")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def deb_contents():
     contents = []
     with open("tests/testdata/dpkg_contents_example_1.0-1_all", 'r') as d:
@@ -24,7 +24,7 @@ def deb_contents():
     return contents
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def dpkg_contents():
     import os.path
 
