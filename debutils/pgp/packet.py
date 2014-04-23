@@ -66,7 +66,12 @@ class SubPacket(PacketField):
             self.payload = datetime.utcfromtimestamp(bytes_to_int(self.raw[2:]))
 
         elif self.type == SubPacket.Type.Issuer:
-            self.payload = ''.join('{:02x}'.format(c) for c in self.raw[2:]).upper().encode()
+            # python 2.7
+            if type(self.raw) is str:
+                self.payload = ''.join('{:02x}'.format(ord(c)) for c in self.raw[2:]).upper().encode()
+            # python 3.x
+            else:
+                self.payload = ''.join('{:02x}'.format(c) for c in self.raw[2:]).upper().encode()
 
         else:
             self.payload = self.raw[2:]
@@ -259,7 +264,7 @@ class Tag(PacketField):
         :param packet: raw packet bytes
         """
 
-        self.raw = packet[0]
+        self.raw = bytes_to_int(packet[0:1])
 
         self.always_1 = self.raw >> 7
         if self.always_1 != 1:
